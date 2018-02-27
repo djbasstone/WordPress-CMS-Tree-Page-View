@@ -641,6 +641,12 @@ function cms_tpv_save_settings() {
 
 /**
  * Add widget to dashboard
+ *
+ * changed code to use wp_add_dashboard_widget as
+ * WordPress documentation way when make call
+ * with parameters
+ * 
+ * Heikki Paananen, Kehitysvammaliitto ry (2018-02-27) 	
  */
 function cms_tpv_wp_dashboard_setup() {
 
@@ -651,10 +657,11 @@ function cms_tpv_wp_dashboard_setup() {
 		$options = cms_tpv_get_options();
 		foreach ($options["dashboard"] as $one_dashboard_post_type) {
 			$post_type_object = get_post_type_object($one_dashboard_post_type);
-			$new_func_name = create_function('', "cms_tpv_dashboard('$one_dashboard_post_type');");
+			//$new_func_name = create_function('', "cms_tpv_dashboard('$one_dashboard_post_type');");
 			if ( ! empty( $post_type_object ) ) {
 				$widget_name = sprintf( _x('%1$s Tree', "name of dashboard", "cms-tree-page-view"), $post_type_object->labels->name);
-				wp_add_dashboard_widget( "cms_tpv_dashboard_widget_{$one_dashboard_post_type}", $widget_name, $new_func_name );
+				//wp_add_dashboard_widget( "cms_tpv_dashboard_widget_{$one_dashboard_post_type}", $widget_name, $new_func_name );
+				wp_add_dashboard_widget( "cms_tpv_dashboard_widget_{$one_dashboard_post_type}", $widget_name, "cms_tpv_dashboard", "", $one_dashboard_post_type );
 			}
 		}
 	}
@@ -664,9 +671,16 @@ function cms_tpv_wp_dashboard_setup() {
 
 /**
  * Output on dashboard
+ *
+ * Added $control_callback parameter because
+ * wp_add_dashboard_widget function needs it
+ * and changed $post_type come from $callback_args['args']
+ *
+ * Heikki Paananen, Kehitysvammaliitto ry (2018-02-27) 	
  */
-function cms_tpv_dashboard($post_type = "") {
+function cms_tpv_dashboard($control_callback = "", $callback_args = array()) {
 	//cms_tpv_show_annoying_box();
+  	$post_type = ( isset( $callback_args['args'] ) ) ? $callback_args['args'] : '';
 	cms_tpv_print_common_tree_stuff($post_type);
 }
 
